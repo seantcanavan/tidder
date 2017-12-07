@@ -4,6 +4,7 @@ import (
 	"testing"
 	"strings"
 	"github.com/seantcanavan/tidder/test"
+	"github.com/satori/go.uuid"
 )
 
 func TestRandomAlphaNum(t *testing.T) {
@@ -126,8 +127,8 @@ func TestRandomEmail(t *testing.T) {
 
 func TestIsAllUpper(t *testing.T) {
 	tables := []struct {
-		input string
-		result bool
+		input    string
+		expected bool
 	} {
 		{"UPPERCASE", true},
 		{"UPPER CASE", true},
@@ -138,16 +139,16 @@ func TestIsAllUpper(t *testing.T) {
 
 	for _, table := range tables {
 		result := IsAllUpper(table.input)
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestIsAllLower(t *testing.T) {
 	tables := []struct {
-		input string
-		result bool
+		input    string
+		expected bool
 	} {
 		{"UPPERCASE", false},
 		{"CRUISE CONTROL", false},
@@ -158,16 +159,16 @@ func TestIsAllLower(t *testing.T) {
 
 	for _, table := range tables {
 		result := IsAllLower(table.input)
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestContainsUpper(t *testing.T) {
 	tables := []struct {
-		input string
-		result bool
+		input    string
+		expected bool
 	} {
 		{"UPPERCASE", true},
 		{"CRUISE CONTROL", true},
@@ -178,16 +179,16 @@ func TestContainsUpper(t *testing.T) {
 
 	for _, table := range tables {
 		result := ContainsUpper(table.input)
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestContainsLower(t *testing.T) {
 	tables := []struct {
-		input string
-		result bool
+		input    string
+		expected bool
 	} {
 		{"UPPERCASE", false},
 		{"CRUISE CONTROL", false},
@@ -198,16 +199,16 @@ func TestContainsLower(t *testing.T) {
 
 	for _, table := range tables {
 		result := ContainsLower(table.input)
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestContainsNumeral(t *testing.T) {
 	tables := []struct {
-		input string
-		result bool
+		input    string
+		expected bool
 	} {
 		{"UPPER12CASE", true},
 		{"CRUISE 1 CONTROL", true},
@@ -223,16 +224,16 @@ func TestContainsNumeral(t *testing.T) {
 
 	for _, table := range tables {
 		result := ContainsNumeral(table.input)
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestStrConcat(t *testing.T) {
 	tables := []struct {
-		input []string
-		result string
+		input    []string
+		expected string
 	} {
 		{[]string{"one", "two", "three"}, "onetwothree"},
 		{[]string{"three", "four", "five"}, "threefourfive"},
@@ -241,16 +242,16 @@ func TestStrConcat(t *testing.T) {
 	for _, table := range tables {
 		result := StrConcat(table.input...)
 
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestStrTrimConcat(t *testing.T) {
 	tables := []struct {
-		input []string
-		result string
+		input    []string
+		expected string
 	} {
 		{[]string{"one ", " two", " three "}, "onetwothree"},
 		{[]string{" three", "four ", " five "}, "threefourfive"},
@@ -259,16 +260,16 @@ func TestStrTrimConcat(t *testing.T) {
 	for _, table := range tables {
 		result := StrTrimConcat(table.input...)
 
-		if result != table.result {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.result, result, table.input)
+		if result != table.expected {
+			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.expected, result, table.input)
 		}
 	}
 }
 
 func TestIsValidEmail(t *testing.T) {
 	tables := []struct {
-		input string
-		boolResult bool
+		input    string
+		expected bool
 	} {
 		{"1@2.3", true},
 		{"seantcanavan@github.com", true},
@@ -277,18 +278,15 @@ func TestIsValidEmail(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		boolResult := IsValidEmail(table.input)
-
-		if boolResult != table.boolResult {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.boolResult, boolResult, table.input)
-		}
+		result := IsValidEmail(table.input)
+		test.InOutExpCheck(t, table.input, result, table.expected)
 	}
 }
 
 func TestIsValidUserName(t *testing.T) {
 	tables := []struct {
-		input string
-		boolResult bool
+		input    string
+		expected bool
 	} {
 		{"1@2.3", false},
 		{"seantcanavan@github.com", false},
@@ -300,10 +298,41 @@ func TestIsValidUserName(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		boolResult := IsValidUserName(table.input)
+		result := IsValidUserName(table.input)
+		test.InOutExpCheck(t, table.input, result, table.expected)
+	}
+}
 
-		if boolResult != table.boolResult {
-			t.Errorf("Result was incorrect. Expected: %v. Got: %v. Input: %v.", table.boolResult, boolResult, table.input)
-		}
+func TestIsValidUUID(t *testing.T) {
+	uuid01 := uuid.NewV4().String()
+	uuid02 := uuid.NewV4().String()
+	uuid03 := uuid.NewV4().String()
+	uuid04 := uuid.NewV4().String()
+	uuid05 := uuid.NewV4().String()
+	uuid06 := uuid.NewV4().String()
+	uuid07 := test.RandomAlphaNum(20)
+	uuid08 := test.RandomAlphaNum(20)
+	uuid09 := test.RandomAlphaNum(20)
+	uuid10 := test.RandomAlphaNum(20)
+
+	tables := []struct {
+		input    string
+		expected bool
+	} {
+		{uuid01, true},
+		{uuid02, true},
+		{uuid03, true},
+		{uuid04, true},
+		{uuid05, true},
+		{uuid06, true},
+		{uuid07, false},
+		{uuid08, false},
+		{uuid09, false},
+		{uuid10, false},
+	}
+
+	for _, table := range tables {
+		result := IsValidUUID(table.input)
+		test.InOutExpCheck(t, table.input, result, table.expected)
 	}
 }

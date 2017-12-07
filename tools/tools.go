@@ -87,3 +87,8 @@ func IsValidUserName(userName string) bool {
 	match, err := regexp.MatchString("^[a-zA-Z0-9]{1,}$", userName)
 	return err == nil && match
 }
+
+func IsValidUUID(uuid string) bool {
+	r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+	return r.MatchString(uuid)
+}
