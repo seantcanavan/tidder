@@ -2,15 +2,15 @@ package user
 
 import (
 	"testing"
-	"github.com/seantcanavan/tidder/tools"
-	"fmt"
+	"github.com/seantcanavan/tidder/test"
 )
 
 func TestNewUser(t *testing.T) {
-	newUser, err := NewUser(tools.RandomAlphaMixed(5), tools.RandomAlphaMixed(5))
-	if err != nil {
-		t.Errorf("Failed to create new user: %v", err)
-	}
+	var username = test.RandomAlphaMixed(5)
+	var emailAddress = test.RandomEmail()
+	user, err := New(username, emailAddress)
 
-	fmt.Println(newUser)
+	test.ErrorCheck(t, err, nil)
+	test.InOutExpCheck(t, emailAddress, user.Email, emailAddress)
+	test.InOutExpCheck(t, username, user.Name, username)
 }

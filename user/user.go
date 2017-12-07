@@ -1,21 +1,21 @@
 package user
 
 import (
-	"github.com/satori/go.uuid"
-	"strings"
-	"github.com/seantcanavan/tidder/tools"
 	"fmt"
+	"github.com/satori/go.uuid"
+	"github.com/seantcanavan/tidder/tools"
+	"log"
 )
 
 type User struct {
-	Id           string `json: "id"`
-	FirstName    string `json: "firstName"`
-	LastName     string `json: "lastName"`
-	Name         string `json: "name"`
-	EmailAddress string `json: "emailAddress"`
+	Id    string `json: "id"`
+	First string `json: "first"`
+	Last  string `json: "last"`
+	Name  string `json: "name"`
+	Email string `json: "email"`
 }
 
-func NewUser(name, emailAddress string) (*User, error) {
+func New(name, emailAddress string) (*User, error) {
 
 	if !tools.IsValidUserName(name) {
 		return nil, fmt.Errorf("cannot create new user with an invalid user name : %v", name)
@@ -28,22 +28,17 @@ func NewUser(name, emailAddress string) (*User, error) {
 	newUser := new(User)
 	newUser.Name = name
 	newUser.Id = uuid.NewV4().String()
-	newUser.EmailAddress = emailAddress
+	newUser.Email = emailAddress
 
 	return newUser, nil
 }
 
-func (u *User) GetEmailAddress() string {
-	return u.EmailAddress
+func (u *User) SetEmail(email string) {
+	if tools.IsValidEmail(email) {
+		u.Email = email
+	} else {
+		log.Printf("cannot set invalid email %v to user %v", email, u)
+	}
 }
 
-func (u *User) SetEmailAddress(emailAddress string) {
-	u.EmailAddress = strings.ToLower(emailAddress)
-}
-
-func (u *User) GetFullName() string {
-	return tools.StrTrimConcat(u.FirstName, u.LastName)
-}
-
-
-
+func (u *User) GetFullName() string { return tools.StrTrimConcat(u.First, u.Last) }

@@ -3,6 +3,7 @@ package tools
 import (
 	"testing"
 	"strings"
+	"github.com/seantcanavan/tidder/test"
 )
 
 func TestRandomAlphaNum(t *testing.T) {
@@ -16,7 +17,7 @@ func TestRandomAlphaNum(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		result := RandomAlphaNum(table.input)
+		result := test.RandomAlphaNum(table.input)
 		if len(result) != table.input {
 			t.Errorf("Result was incorrect. Expected: %v. Got: %v.", table.input, len(result))
 		}
@@ -34,7 +35,7 @@ func TestRandomAlphaLower(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		result := RandomAlphaLower(table.input)
+		result := test.RandomAlphaLower(table.input)
 
 		if len(result) != table.input {
 			t.Errorf("Result was incorrect. Expected: %v. Got: %v.", table.input, len(result))
@@ -61,7 +62,7 @@ func TestRandomAlphaUpper(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		result := RandomAlphaUpper(table.input)
+		result := test.RandomAlphaUpper(table.input)
 
 		if len(result) != table.input {
 			t.Errorf("Result was incorrect. Expected: %v. Got: %v.", table.input, len(result))
@@ -88,7 +89,7 @@ func TestRandomAlphaMixed(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		result := RandomAlphaMixed(table.input)
+		result := test.RandomAlphaMixed(table.input)
 
 		if len(result) != table.input {
 			t.Errorf("Result was incorrect. Expected: %v. Got: %v.", table.input, len(result))
@@ -102,7 +103,7 @@ func TestRandomAlphaMixed(t *testing.T) {
 
 func TestRandomEmail(t *testing.T) {
 	for i := 0; i < 5; i++ {
-		result := RandomEmail()
+		result := test.RandomEmail()
 		lastAt := strings.LastIndex(result, "@")
 		lastPeriod := strings.LastIndex(result, ".")
 

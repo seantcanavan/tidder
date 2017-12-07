@@ -7,62 +7,62 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"os"
-	"os/user"
 )
 
-func GetUserByName(name string) {
+var TABLE_NAME = "User"
 
-}
-
-func GetUserByEmailAddress(emailAddress string) {
-
-}
-
-func GetUserById(id string) {
-
-}
-
-func DeleteUser(id string) {
-
-}
-
-func AddUser(user *user.User) {
+func DeleteUser(id string) (*dynamodb.DeleteItemOutput, error) {
+	avm := make(map[string]*dynamodb.AttributeValue)
+	avm["Id"] = &dynamodb.AttributeValue{
+		S: aws.String(id),
+	}
 
 	svc := getDynamoDb()
 
-	av, err := dynamodbattribute.MarshalMap(user)
-	if err != nil {
-		fmt.Println("Unable to marshal User map.")
-		fmt.Println(err)
-		os.Exit(1)
+	dii := &dynamodb.DeleteItemInput{
+		Key:       avm,
+		TableName: aws.String(TABLE_NAME),
 	}
 
-	input := &dynamodb.PutItemInput{
-		Item:      av,
-		TableName: aws.String("users"),
+	return svc.DeleteItem(dii)
+
+}
+
+func AddUser(user *User) (*dynamodb.PutItemOutput, error) {
+	avm, marshalErr := dynamodbattribute.MarshalMap(user)
+	if marshalErr != nil {
+		return nil, marshalErr
 	}
 
-	_, err = svc.PutItem(input)
+	svc := getDynamoDb()
 
-	if err != nil {
-		fmt.Println("Unable to PutItemn:")
-		fmt.Println(err)
-		os.Exit(1)
+	pii := &dynamodb.PutItemInput{
+		Item:      avm,
+		TableName: aws.String(TABLE_NAME),
 	}
+
+	return svc.PutItem(pii)
 }
 
 func getDynamoDb() *dynamodb.DynamoDB {
-	session, err := session.NewSession(&aws.Config{
+	newSession, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-west-2"),
 		Credentials: credentials.NewSharedCredentials("", "sean-personal"),
 	})
 
 	if err != nil {
-		fmt.Println("Unable to connect to dynamodb.")
-		fmt.Println(err)
-		os.Exit(1)
+		panic(fmt.Sprintf("unable to connect to dynamo: %v", err.Error()))
 	}
 
-	return dynamodb.New(session)
+	return dynamodb.New(newSession)
+}
+
+func DescribeTable() (*dynamodb.DescribeTableOutput, error) {
+	req := &dynamodb.DescribeTableInput{
+		TableName: aws.String(TABLE_NAME),
+	}
+
+	svc := getDynamoDb()
+
+	return svc.DescribeTable(req)
 }
