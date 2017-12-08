@@ -11,20 +11,20 @@ import (
 
 const TABLENAME = "User"
 
-func CreateUser(user *User) (*dynamodb.PutItemOutput, error) {
-	avm, marshalErr := dynamodbattribute.MarshalMap(user)
+func CreateUser(u *User) (*dynamodb.PutItemOutput, error) {
+	avm, marshalErr := dynamodbattribute.MarshalMap(u)
 	if marshalErr != nil {
 		return nil, marshalErr
 	}
 
-	svc := getDynamoDb()
+	dynamo := getDynamoDb()
 
 	pii := &dynamodb.PutItemInput{
 		Item:      avm,
 		TableName: aws.String(TABLENAME),
 	}
 
-	return svc.PutItem(pii)
+	return dynamo.PutItem(pii)
 }
 
 func ReadUser(id string) (*dynamodb.GetItemOutput, error) {
@@ -43,6 +43,29 @@ func ReadUser(id string) (*dynamodb.GetItemOutput, error) {
 	return dynamo.GetItem(gii)
 }
 
+func UpdateUser(u *User) (*dynamodb.UpdateItemOutput, error) {
+
+	keyMap := make(map[string]*dynamodb.AttributeValue)
+	keyMap["Id"] = &dynamodb.AttributeValue{
+		S: aws.String(u.Id),
+	}
+
+	avm, marshalErr := ToAvm(u)
+	if marshalErr != nil {
+		return nil, marshalErr
+	}
+
+	dynamo := getDynamoDb()
+
+	uii := &dynamodb.UpdateItemInput{
+		Key: keyMap,
+		AttributeUpdates: avm,
+		TableName: aws.String(TABLENAME),
+	}
+
+	return dynamo.UpdateItem(uii)
+}
+
 func DeleteUser(id string) (*dynamodb.DeleteItemOutput, error) {
 	avm := make(map[string]*dynamodb.AttributeValue)
 	avm["Id"] = &dynamodb.AttributeValue{
@@ -59,7 +82,6 @@ func DeleteUser(id string) (*dynamodb.DeleteItemOutput, error) {
 	return dynamo.DeleteItem(dii)
 
 }
-
 
 func getDynamoDb() *dynamodb.DynamoDB {
 	newSession, err := session.NewSession(&aws.Config{

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"github.com/seantcanavan/tidder/test"
 	"reflect"
+	"github.com/satori/go.uuid"
 )
 
 func TestUserTable(t *testing.T) {
@@ -20,18 +21,37 @@ func TestUserCRUD(t *testing.T) {
 
 	test.ErrorCheck(t, err, nil)
 
+
+	//C
 	cio, addErr := CreateUser(user)
 	test.ErrorCheck(t, addErr, nil)
+	t.Log("CreateUserOutput:")
 	t.Log(cio)
 
+	//U
+	user.First = "newFirst"
+	user.Last = "newLast"
+	user.Email = "new@email.com"
+	user.Id = uuid.NewV4().String()
+	user.Name = "newUser"
+
+	uuo, updateErr := UpdateUser(user)
+	test.ErrorCheck(t, updateErr, nil)
+	t.Log("UpdateUserOutput:")
+	t.Log(uuo)
+
+	//R
 	gio, readErr := ReadUser(user.Id)
 	test.ErrorCheck(t, readErr, nil)
+	t.Log("ReadUserOutput:")
 	t.Log(gio)
 
 	queried, avmErr := FromAvm(gio.Item)
 	test.ErrorCheck(t, avmErr, nil)
 	test.OutExpCheck(t, reflect.DeepEqual(user, queried), true)
 
+
+	//D
 	dio, delErr := DeleteUser(user.Id)
 	test.ErrorCheck(t, delErr, nil)
 

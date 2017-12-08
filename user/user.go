@@ -6,6 +6,7 @@ import (
 	"github.com/seantcanavan/tidder/tools"
 	"log"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 type User struct {
@@ -18,33 +19,90 @@ type User struct {
 
 func FromAvm(avm map[string]*dynamodb.AttributeValue) (*User, error) {
 
-	user := &User{}
+	u := &User{}
 
 	if val, ok := avm["Id"]; ok {
-		user.Id = *val.S
+		u.Id = *val.S
 	}
 
 	if val, ok := avm["First"]; ok {
-		user.First = *val.S
+		u.First = *val.S
 	}
 
 	if val, ok := avm["Last"]; ok {
-		user.Last = *val.S
+		u.Last = *val.S
 	}
 
 	if val, ok := avm["Name"]; ok {
-		user.Name = *val.S
+		u.Name = *val.S
 	}
 
 	if val, ok := avm["Email"]; ok {
-		user.Email = *val.S
+		u.Email = *val.S
 	}
 
-	if !IsValidUser(user) {
-		return nil, fmt.Errorf("created invalid user %v from map %v", user, avm)
+	if !IsValidUser(u) {
+		return nil, fmt.Errorf("created invalid user %v from map %v", u, avm)
 	}
 
-	return user, nil
+	return u, nil
+}
+
+func ToAvm(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
+
+	if !IsValidUser(u) {
+		return nil, fmt.Errorf("cannot convert invalid user %v to map", u)
+	}
+
+	avm := make(map[string]*dynamodb.AttributeValueUpdate)
+
+	// do not include the ID for now as we can't update it technically
+	//if u.Id != "" {
+	//	avm["Id"] = &dynamodb.AttributeValueUpdate{
+	//		Value: &dynamodb.AttributeValue{
+	//			S: aws.String(u.Id),
+	//		},
+	//		Action: aws.String("PUT"),
+	//	}
+	//}
+
+	if u.First != "" {
+		avm["First"] = &dynamodb.AttributeValueUpdate{
+			Value: &dynamodb.AttributeValue{
+				S: aws.String(u.First),
+			},
+			Action: aws.String("PUT"),
+		}
+	}
+
+	if u.Last != "" {
+		avm["Last"] = &dynamodb.AttributeValueUpdate{
+			Value: &dynamodb.AttributeValue{
+				S: aws.String(u.Last),
+			},
+			Action: aws.String("PUT"),
+		}
+	}
+
+	if u.Email != "" {
+		avm["Email"] = &dynamodb.AttributeValueUpdate{
+			Value: &dynamodb.AttributeValue{
+				S: aws.String(u.Email),
+			},
+			Action: aws.String("PUT"),
+		}
+	}
+
+	if u.Name != "" {
+		avm["Name"] = &dynamodb.AttributeValueUpdate{
+			Value: &dynamodb.AttributeValue{
+				S: aws.String(u.Name),
+			},
+			Action: aws.String("PUT"),
+		}
+	}
+
+	return avm, nil
 }
 
 func New(name, emailAddress string) (*User, error) {
