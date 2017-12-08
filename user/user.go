@@ -2,11 +2,11 @@ package user
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/satori/go.uuid"
 	"github.com/seantcanavan/tidder/tools"
 	"log"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 type User struct {
@@ -48,7 +48,38 @@ func FromAvm(avm map[string]*dynamodb.AttributeValue) (*User, error) {
 	return u, nil
 }
 
-func ToAvm(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
+func ToAvm(u *User) (map[string]*dynamodb.AttributeValue, error) {
+
+	if !IsValidUser(u) {
+		return nil, fmt.Errorf("cannot convert invalid user %v to map", u)
+	}
+
+	avm := make(map[string]*dynamodb.AttributeValue)
+
+	if u.Id != "" {
+		avm["Id"] = &dynamodb.AttributeValue{S: aws.String(u.Id)}
+	}
+
+	if u.First != "" {
+		avm["First"] = &dynamodb.AttributeValue{S: aws.String(u.First)}
+	}
+
+	if u.Last != "" {
+		avm["Last"] = &dynamodb.AttributeValue{S: aws.String(u.Last)}
+	}
+
+	if u.Email != "" {
+		avm["Email"] = &dynamodb.AttributeValue{S: aws.String(u.Email)}
+	}
+
+	if u.Name != "" {
+		avm["Name"] = &dynamodb.AttributeValue{S: aws.String(u.Name)}
+	}
+
+	return avm, nil
+}
+
+func ToAvmUpdate(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
 
 	if !IsValidUser(u) {
 		return nil, fmt.Errorf("cannot convert invalid user %v to map", u)
@@ -56,48 +87,32 @@ func ToAvm(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
 
 	avm := make(map[string]*dynamodb.AttributeValueUpdate)
 
-	// do not include the ID for now as we can't update it technically
-	//if u.Id != "" {
-	//	avm["Id"] = &dynamodb.AttributeValueUpdate{
-	//		Value: &dynamodb.AttributeValue{
-	//			S: aws.String(u.Id),
-	//		},
-	//		Action: aws.String("PUT"),
-	//	}
-	//}
+	// do not marshal the Id since it cannot be part of a valid update command from dynamo
 
 	if u.First != "" {
 		avm["First"] = &dynamodb.AttributeValueUpdate{
-			Value: &dynamodb.AttributeValue{
-				S: aws.String(u.First),
-			},
+			Value:  &dynamodb.AttributeValue{S: aws.String(u.First)},
 			Action: aws.String("PUT"),
 		}
 	}
 
 	if u.Last != "" {
 		avm["Last"] = &dynamodb.AttributeValueUpdate{
-			Value: &dynamodb.AttributeValue{
-				S: aws.String(u.Last),
-			},
+			Value:  &dynamodb.AttributeValue{S: aws.String(u.Last)},
 			Action: aws.String("PUT"),
 		}
 	}
 
 	if u.Email != "" {
 		avm["Email"] = &dynamodb.AttributeValueUpdate{
-			Value: &dynamodb.AttributeValue{
-				S: aws.String(u.Email),
-			},
+			Value:  &dynamodb.AttributeValue{S: aws.String(u.Email)},
 			Action: aws.String("PUT"),
 		}
 	}
 
 	if u.Name != "" {
 		avm["Name"] = &dynamodb.AttributeValueUpdate{
-			Value: &dynamodb.AttributeValue{
-				S: aws.String(u.Name),
-			},
+			Value:  &dynamodb.AttributeValue{S: aws.String(u.Name)},
 			Action: aws.String("PUT"),
 		}
 	}

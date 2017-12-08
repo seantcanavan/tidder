@@ -34,7 +34,7 @@ func ReadUser(id string) (*dynamodb.GetItemOutput, error) {
 	}
 
 	gii := &dynamodb.GetItemInput{
-		Key: avm,
+		Key:       avm,
 		TableName: aws.String(TABLENAME),
 	}
 
@@ -50,7 +50,7 @@ func UpdateUser(u *User) (*dynamodb.UpdateItemOutput, error) {
 		S: aws.String(u.Id),
 	}
 
-	avm, marshalErr := ToAvm(u)
+	avm, marshalErr := ToAvmUpdate(u)
 	if marshalErr != nil {
 		return nil, marshalErr
 	}
@@ -58,9 +58,9 @@ func UpdateUser(u *User) (*dynamodb.UpdateItemOutput, error) {
 	dynamo := getDynamoDb()
 
 	uii := &dynamodb.UpdateItemInput{
-		Key: keyMap,
+		Key:              keyMap,
 		AttributeUpdates: avm,
-		TableName: aws.String(TABLENAME),
+		TableName:        aws.String(TABLENAME),
 	}
 
 	return dynamo.UpdateItem(uii)

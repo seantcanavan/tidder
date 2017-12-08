@@ -1,10 +1,10 @@
 package user
 
 import (
-	"testing"
+	"github.com/satori/go.uuid"
 	"github.com/seantcanavan/tidder/test"
 	"reflect"
-	"github.com/satori/go.uuid"
+	"testing"
 )
 
 func TestUserTable(t *testing.T) {
@@ -20,7 +20,6 @@ func TestUserCRUD(t *testing.T) {
 	user.Last = "canavan"
 
 	test.ErrorCheck(t, err, nil)
-
 
 	//C
 	cio, addErr := CreateUser(user)
@@ -50,10 +49,10 @@ func TestUserCRUD(t *testing.T) {
 	test.ErrorCheck(t, avmErr, nil)
 	test.OutExpCheck(t, reflect.DeepEqual(user, queried), true)
 
-
 	//D
 	dio, delErr := DeleteUser(user.Id)
 	test.ErrorCheck(t, delErr, nil)
 
+	t.Log("DeleteUserOutput:")
 	t.Log(dio)
 }
