@@ -7,6 +7,7 @@ import (
 	"github.com/satori/go.uuid"
 	"github.com/seantcanavan/tidder/tools"
 	"log"
+	"github.com/seantcanavan/tidder/test"
 )
 
 type User struct {
@@ -15,6 +16,20 @@ type User struct {
 	Last  string `json: "last"`
 	Name  string `json: "name"`
 	Email string `json: "email"`
+}
+
+func FromAvmArray(avm []map[string]*dynamodb.AttributeValue) ([]*User, error) {
+	list := make([]*User, len(avm))
+
+	for index, element := range avm {
+		from, fromErr := FromAvm(element)
+		if fromErr != nil {
+			return []*User{}, fmt.Errorf("issue parsing item FromAvm: %v", fromErr.Error())
+		}
+		list[index] = from
+	}
+
+	return list, nil
 }
 
 func FromAvm(avm map[string]*dynamodb.AttributeValue) (*User, error) {
@@ -120,20 +135,20 @@ func ToAvmUpdate(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
 	return avm, nil
 }
 
-func New(name, emailAddress string) (*User, error) {
+func New(name, email string) (*User, error) {
 
 	if !tools.IsValidUserName(name) {
 		return nil, fmt.Errorf("cannot create new user with an invalid user name : %v", name)
 	}
 
-	if !tools.IsValidEmail(emailAddress) {
-		return nil, fmt.Errorf("cannot create new user with an invalid email address: %v", emailAddress)
+	if !tools.IsValidEmail(email) {
+		return nil, fmt.Errorf("cannot create new user with an invalid email address: %v", email)
 	}
 
 	newUser := new(User)
 	newUser.Name = name
 	newUser.Id = uuid.NewV4().String()
-	newUser.Email = emailAddress
+	newUser.Email = email
 
 	return newUser, nil
 }
@@ -162,4 +177,14 @@ func IsValidUser(u *User) bool {
 	}
 
 	return true
+}
+
+func TestUser() *User {
+	return &User{
+		Id: uuid.NewV4().String(),
+		Name: test.RandomAlphaMixed(10),
+		Last: test.RandomAlphaMixed(10),
+		First: test.RandomAlphaMixed(10),
+		Email: test.RandomEmail(),
+	}
 }

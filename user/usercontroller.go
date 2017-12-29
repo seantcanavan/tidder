@@ -17,3 +17,7 @@ func AddUserHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 
 }
+
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+
+}

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/satori/go.uuid"
 	"github.com/seantcanavan/tidder/test"
 	"reflect"
 	"testing"
@@ -18,13 +17,7 @@ func TestNewUser(t *testing.T) {
 }
 
 func TestToAvmAndToAvmUpdateAndFromAvm(t *testing.T) {
-	user := &User{
-		Id:    uuid.NewV4().String(),
-		Name:  "some1",
-		Last:  "lastHere",
-		First: "firstHere",
-		Email: "at@dot.com",
-	}
+	user := TestUser()
 
 	updateAvm, toUpdateErr := ToAvmUpdate(user)
 	test.ErrorCheck(t, toUpdateErr, nil)

@@ -15,11 +15,7 @@ func TestUserTable(t *testing.T) {
 }
 
 func TestUserCRUD(t *testing.T) {
-	user, err := New(test.RandomAlphaMixed(10), test.RandomEmail())
-	user.First = "sean"
-	user.Last = "canavan"
-
-	test.ErrorCheck(t, err, nil)
+	user := TestUser()
 
 	//C
 	cio, addErr := CreateUser(user)
@@ -55,4 +51,17 @@ func TestUserCRUD(t *testing.T) {
 
 	t.Log("DeleteUserOutput:")
 	t.Log(dio)
+}
+
+func TestEmailIndex(t *testing.T) {
+	user := TestUser()
+
+	_, createErr := CreateUser(user)
+	test.ErrorCheck(t, createErr, nil)
+
+	results, queryErr := ReadUserByEmail(user.Email)
+	test.ErrorCheck(t, queryErr, nil)
+
+	test.OutExpCheck(t, len(results), 1)
+	test.OutExpCheck(t, reflect.DeepEqual(results[0], user), true)
 }
