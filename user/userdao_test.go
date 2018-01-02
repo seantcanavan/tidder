@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/satori/go.uuid"
 	"github.com/seantcanavan/tidder/test"
 	"reflect"
 	"testing"
@@ -27,7 +26,6 @@ func TestUserCRUD(t *testing.T) {
 	user.First = "newFirst"
 	user.Last = "newLast"
 	user.Email = "new@email.com"
-	user.Id = uuid.NewV4().String()
 	user.Name = "newUser"
 
 	uuo, updateErr := UpdateUser(user)
@@ -64,4 +62,7 @@ func TestEmailIndex(t *testing.T) {
 
 	test.OutExpCheck(t, len(results), 1)
 	test.OutExpCheck(t, reflect.DeepEqual(results[0], user), true)
+
+	_, deleteErr := DeleteUser(user.Id)
+	test.ErrorCheck(t, deleteErr, nil)
 }
