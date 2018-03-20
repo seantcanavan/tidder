@@ -8,14 +8,16 @@ import (
 	"github.com/seantcanavan/tidder/tools"
 	"log"
 	"github.com/seantcanavan/tidder/test"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 type User struct {
-	Id    string `json: "id"`
-	First string `json: "first"`
-	Last  string `json: "last"`
-	Name  string `json: "name"`
-	Email string `json: "email"`
+	Id       string `json: "id"`
+	First    string `json: "first"`
+	Last     string `json: "last"`
+	Name     string `json: "name"`
+	Email    string `json: "email"`
+	Password []byte `JSON: "password"`
 }
 
 func FromAvmArray(avm []map[string]*dynamodb.AttributeValue) ([]*User, error) {
@@ -33,69 +35,30 @@ func FromAvmArray(avm []map[string]*dynamodb.AttributeValue) ([]*User, error) {
 }
 
 func FromAvm(avm map[string]*dynamodb.AttributeValue) (*User, error) {
+	user := &User{}
 
-	u := &User{}
-
-	if val, ok := avm["Id"]; ok {
-		u.Id = *val.S
+	err := dynamodbattribute.UnmarshalMap(avm, user)
+	if err != nil {
+		return nil, err
 	}
 
-	if val, ok := avm["First"]; ok {
-		u.First = *val.S
-	}
-
-	if val, ok := avm["Last"]; ok {
-		u.Last = *val.S
-	}
-
-	if val, ok := avm["Name"]; ok {
-		u.Name = *val.S
-	}
-
-	if val, ok := avm["Email"]; ok {
-		u.Email = *val.S
-	}
-
-	if !IsValidUser(u) {
-		return nil, fmt.Errorf("created invalid user %v from map %v", u, avm)
-	}
-
-	return u, nil
+	return user, nil
 }
 
 func ToAvm(u *User) (map[string]*dynamodb.AttributeValue, error) {
-
 	if !IsValidUser(u) {
 		return nil, fmt.Errorf("cannot convert invalid user %v to map", u)
 	}
 
-	avm := make(map[string]*dynamodb.AttributeValue)
-
-	if u.Id != "" {
-		avm["Id"] = &dynamodb.AttributeValue{S: aws.String(u.Id)}
-	}
-
-	if u.First != "" {
-		avm["First"] = &dynamodb.AttributeValue{S: aws.String(u.First)}
-	}
-
-	if u.Last != "" {
-		avm["Last"] = &dynamodb.AttributeValue{S: aws.String(u.Last)}
-	}
-
-	if u.Email != "" {
-		avm["Email"] = &dynamodb.AttributeValue{S: aws.String(u.Email)}
-	}
-
-	if u.Name != "" {
-		avm["Name"] = &dynamodb.AttributeValue{S: aws.String(u.Name)}
+	avm, err := dynamodbattribute.MarshalMap(u);
+	if err != nil {
+		return nil, err
 	}
 
 	return avm, nil
 }
 
 func ToAvmUpdate(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
-
 	if !IsValidUser(u) {
 		return nil, fmt.Errorf("cannot convert invalid user %v to map", u)
 	}
@@ -137,7 +100,7 @@ func ToAvmUpdate(u *User) (map[string]*dynamodb.AttributeValueUpdate, error) {
 
 func New(name, email string) (*User, error) {
 
-	if !tools.IsValidUserName(name) {
+	if !tools.IsValidName(name) {
 		return nil, fmt.Errorf("cannot create new user with an invalid user name : %v", name)
 	}
 

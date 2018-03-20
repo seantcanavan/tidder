@@ -298,7 +298,7 @@ func TestIsValidUserName(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		result := IsValidUserName(table.input)
+		result := IsValidName(table.input)
 		test.InOutExpCheck(t, table.input, result, table.expected)
 	}
 }

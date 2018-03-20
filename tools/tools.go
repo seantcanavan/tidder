@@ -83,8 +83,8 @@ func IsValidEmail(emailAddress string) bool {
 	return err == nil && match
 }
 
-func IsValidUserName(userName string) bool {
-	match, err := regexp.MatchString("^[a-zA-Z0-9]{1,}$", userName)
+func IsValidName(name string) bool {
+	match, err := regexp.MatchString("^[a-zA-Z0-9]{1,}$", name)
 	return err == nil && match
 }
 

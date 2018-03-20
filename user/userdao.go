@@ -51,6 +51,7 @@ func UpdateUser(u *User) (*dynamodb.UpdateItemOutput, error) {
 		Key:              keyMap,
 		AttributeUpdates: avm,
 		TableName:        aws.String(TABLENAME),
+		//ConditionExpression: aws.String("attribute_exists"),
 	}
 
 	return getDynamoDb().UpdateItem(uii)
@@ -92,40 +93,6 @@ func ReadUserByEmail(email string) ([]*User, error) {
 
 	return FromAvmArray(qo.Items)
 }
-
-//func BatchReadUsersById(ids[] string) ([]*User, error) {
-//
-//	var keysToQuery []map[string]*dynamodb.AttributeValue
-//
-//	for _, element := range ids {
-//		currentMap := make(map[string]*dynamodb.AttributeValue)
-//		currentMap["id"] = &dynamodb.AttributeValue{
-//			S: aws.String(element),
-//		}
-//
-//		keysToQuery = append(keysToQuery, currentMap)
-//	}
-//
-//	kaa := &dynamodb.KeysAndAttributes{
-//		ConsistentRead: aws.Bool(true),
-//		Keys: keysToQuery,
-//	}
-//
-//	ri := make(map[string]*dynamodb.KeysAndAttributes)
-//	ri[TABLENAME] = kaa
-//
-//	bgii := &dynamodb.BatchGetItemInput{
-//		RequestItems: ri,
-//	}
-//
-//	svc := getDynamoDb()
-//
-//	bgio, bgioErr := svc.BatchGetItem(bgii)
-//
-//	if bgioErr != nil {
-//		return nil, bgioErr
-//	}
-//}
 
 func getDynamoDb() *dynamodb.DynamoDB {
 	newSession, err := session.NewSession(&aws.Config{
